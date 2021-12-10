@@ -1,10 +1,15 @@
-from enum import Enum
-
-# Note structure
-# signals for every digit | output value
-
-# 1, 4, 7, 8 has unique amount of segments
-# 1 : 2, 4 : 4, 7 : 3, 8 : 7
+def find_nums(nums):
+    n1 = [x for x in nums if len(x) == 2][0]
+    n4 = [x for x in nums if len(x) == 4][0]
+    n7 = [x for x in nums if len(x) == 3][0]
+    n8 = [x for x in nums if len(x) == 7][0]
+    n9 = [x for x in nums if len(x) == 6 and all(y in x for y in n4)][0]
+    n0 = [x for x in nums if len(x) == 6 and x != n9 and all(y in x for y in n1)][0]
+    n6 = [x for x in nums if len(x) == 6 and x != n9 and x != n0][0]
+    n3 = [x for x in nums if len(x) == 5 and all(y in x for y in n1)][0]
+    n5 = [x for x in nums if len(x) == 5 and x != n3 and all(y in n9 for y in x)][0]
+    n2 = [x for x in nums if len(x) == 5 and x != n3 and x != n5][0]
+    return [n0, n1, n2, n3, n4, n5, n6, n7, n8, n9]
 
 raw_data_string = """
 bge dacgef gefac geabf gcab baedf efbdgc agcfeb gb edacfgb | dabef caefg gb gfabe
@@ -208,68 +213,14 @@ bdcf dgcaef feagdb cdefgb bgced cefgbda bdegf gebca dcg cd | gebac dbgef dcg dc
 cgadfbe fceba acgd bfdgec ga eag gaefdb dfeacg cgfea gcdef | ag agfdeb ga fgdaecb
 gfabd dcaebg afcd fd gdbcaf gabdc gefba bgdefc dfg ecabgdf | gdbafc fd fgd fd
 """
-
-
-def arrange_letters(word: str):
-    listed_word = [x for x in word]
-    listed_word.sort()
-    return "".join(listed_word)
-
-
-class Segment:
-    segments = []
-
-    class Sections(Enum):
-        a = 0
-        b = 1
-        c = 2
-        d = 3
-        e = 4
-        f = 5
-        g = 6
-
-    number_letters = {
-        0: "abcefg",
-        1: "cf",
-        2: "acdeg",
-        3: "acdfg",
-        4: "bcdf",
-        5: "abdfg",
-        6: "abdefg",
-        7: "acf",
-        8: "abcdefg",
-        9: "abcdfg",
-    }
-    """
-     0   a
-    1 2 b c
-     3   d
-    4 5 e f
-     6   g
-    """
-    segment_default_binding = {
-        0: "a",
-        1: "b",
-        2: "c",
-        3: "d",
-        4: "e",
-        5: "f",
-        6: "g"
-    }
-
-    def __init__(self, _signal, _output):
-        self.signals = [arrange_letters(x) for x in _signal.split(" ") if x]
-        self.signals.sort(key=(lambda x: len(x)))
-        self.output = [arrange_letters(x) for x in _output.split(" ") if x]
-        self.segment_bindings = Segment.segment_default_binding.copy()
-
-        self.determine_bindings()
-
-
-for item in raw_data_string.split("\n"):
-    if not item:
-        continue
-    signal = item.split("|")[0]
-    output = item.split("|")[1]
-    Segment.segments.append(Segment(signal, output))
-
+data = []
+for x in raw_data_string.strip().split("\n"):
+    data.append(x)
+lines = [[["".join(sorted(z)) for z in y.split()] for y in x.split(" | ")] for x in data]
+p1 = p2 = 0
+for nums, digits in lines:
+    nums = find_nums(nums)
+    p1 += sum(1 for x in digits if x in [nums[y] for y in [1, 4, 7, 8]])
+    p2 += int("".join([str(nums.index(x)) for x in digits]))
+print(f"Part 1: {p1}")
+print(f"Part 2: {p2}")
