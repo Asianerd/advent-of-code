@@ -1,14 +1,9 @@
+import math
+
 #region raw_data_string
 
 
 raw_data_string = """
-2199943210
-3987894921
-9856789892
-8767896789
-9899965678
-"""
-"""
 9874321292198975458901239986401245679543234590129878943236789999863345679876578901978456778910976423
 9965434789987854346893498793212357898753125789998767954345789987651266799765457899854234567899997910
 9876545695986543234989987654323569999654247999898757895456793499540656989755348999765195678978999891
@@ -120,49 +115,41 @@ raw_data_string = """
 9899965678
 """
 
-field = []
-for index, x in enumerate(raw_data_string.strip().split("\n")):
-    field.append([])
-    for y in x:
-        field[index].append(int(y))
+class Point:
+    points = []
 
-def fetch_item(x, y):
-    if (x >= 0) and (y >= 0):
-        print(f"{x} : {y}")
-        try:
-            return field[y][x]
-        except:
-            return None
-    return None
+    def __init__(self, position, amount):
+        self.position = position
+        self.amount = amount
 
-low_points = []
-for x, column in enumerate(field):
-    for y, item in enumerate(column):
-        # Up, down, right and left to be checked
-        up = fetch_item(x, y - 1)
-        down = fetch_item(x, y + 1)
-        right = fetch_item(x + 1, y)
-        left = fetch_item(x - 1, y)
-
-
-        any_low = False
-        # If any direction is lower than the current item
-        for direction in [up, down, right, left]:
-            if not direction:
-                continue
-            if direction <= item:
-                any_low = True
+        self.risk_level = self.amount + 1
+        self.is_low_spot = False
+        self.neighbours = []
+    
+    def fetch_neighbours(self):
+        self.neighbours = [x for x in Point.points if (x.distance(self.position) <= 1) and (x.position != self.position)]
+    
+    def fetch_low_spot(self):
+        any_lower = False
+        # If any neighbour value is lower than own
+        for x in self.neighbours:
+            if self.amount >= x.amount:
+                any_lower = True
                 break
-        
-        print(f"{item}, {'.' if any_low else 'X'} {up} {down} {right} {left}")
-        
-        if not any_low:
-            low_points.append(item)
+        self.is_low_spot = not any_lower
 
-print(low_points)
+    def distance(self, position2):
+        return math.sqrt(
+            math.pow(self.position[0] - position2[0], 2) + 
+            math.pow(self.position[1] - position2[1], 2)
+        )
 
-risk_total = 0
-for x in low_points:
-    risk_total += x + 1
+for y, column in enumerate(raw_data_string.strip().split("\n")):
+    for x, item in enumerate(column):
+        Point.points.append(Point([x, y], int(item)))
 
-print(risk_total)
+for x in Point.points:
+    x.fetch_neighbours()
+    x.fetch_low_spot()
+
+print(sum([x.risk_level for x in Point.points if x.is_low_spot]))
