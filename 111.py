@@ -7,18 +7,6 @@ import math
 11111
 """
 raw_data_string = """
-5483143223
-2745854711
-5264556173
-6141336146
-6357385478
-4167524645
-2176841721
-6882881134
-4846848554
-5283751526
-"""
-"""
 7313511551
 3724855867
 2374331571
@@ -56,20 +44,25 @@ class Dumbo:
     def static_update():
         for x in Dumbo.dumbos:
             x.update()
-        for x in Dumbo.dumbos:
-            x.secondary_update()
+        while len([x for x in Dumbo.dumbos if x.energy > 9]) != 0:
+            for item in [i for i in Dumbo.dumbos if i.energy > 9]:
+                item.has_flashed = True
+                item.energy = 0
+                Dumbo.total_flashes += 1
+                for n in item.neighbours:
+                    if n.has_flashed:
+                        continue
+                    n.energy += 1
 
     def update(self):
         self.has_flashed = False
         self.affect_energy(1)
-        if self.energy > 9:
-            for x in self.neighbours:
-                x.affect_energy(1)
 
     def secondary_update(self):
-        if self.energy > 9:
-            self.energy = 0
-            Dumbo.total_flashes += 1
+        pass
+
+    def tertiary_update(self):
+        pass
 
     def affect_energy(self, amount):
         self.energy += amount
@@ -93,7 +86,7 @@ for x in Dumbo.dumbos:
     x.fetch_neighbours()
 
 display_dumbos()
-for iteration in range(101):
+for iteration in range(100):
     Dumbo.static_update()
     display_dumbos()
 print(Dumbo.total_flashes)
