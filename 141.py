@@ -118,8 +118,7 @@ for x in raw_data_string.strip().split("\n"):
         _match_data = x.split(" -> ")
         matchings[_match_data[0]] = _match_data[1]
 
-for iteration in range(40):
-    print(f"Iteration : {iteration}   Polymer length : {len(polymer)}")
+for iteration in range(10):
     matches = []
     for index in range(len(polymer)):
         pair = polymer[index:index + 2]
