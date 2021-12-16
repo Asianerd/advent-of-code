@@ -42,7 +42,6 @@ class Packet:
     @staticmethod
     def extract_packets(packet):
         packets_found = []
-        
 
     @staticmethod
     def hextobin(h):
