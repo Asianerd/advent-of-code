@@ -7,54 +7,74 @@ EE00D40C823060
 """
 
 
-class Data:
-    def __init__(self, raw):
-        self.bin_string = raw
-
-
 class Packet:
     packets = []
 
     def __init__(self, raw):
-        self.hex_string = raw
-        self.bin_string = Packet.hextobin(self.hex_string)
+        self.bin_string = raw
+        self.version = self.bin_string[0:3]
+        self.id = self.bin_string[3:6]
+        self.type = Packet.Type.Literal if self.id == '100' else Packet.Type.Operator
+        self.data = []
 
-        self.version = int(self.bin_string[0:3], 2)
-        self.id = int(self.bin_string[3:6], 2)
+        self.data_length_type = Packet.LengthType.bit15
+        self.data_length = 0
 
-        self.type = Packet.Type.Literal if (self.id == 4) else Packet.Type.Operator
-
-        if self.type == Packet.Type.Operator:
-            self.length_type = Packet.DataLengthType.bit11 if (self.bin_string[6] == '1') else Packet.DataLengthType.bit15
-            if self.length_type == Packet.DataLengthType.bit11:
-                self.data_length = self.bin_string[7:18]
-            else:
-                self.data_length = self.bin_string[7:22]
-            print(f"{self.length_type} : {self.data_length}")
+        if self.type == Packet.Type.Literal:
+            self.initialize_literal()
         else:
-            self.data = []
-            _data_location = self.bin_string[6:-1]
-            for index in range(int(len(_data_location) / 5)):
-                self.data.append(Data(_data_location[index * 5:(index * 5) + 5]))
+            self.initialize_operator()
 
-        print(f"{self.bin_string} {self.version} {self.id} {self.type}")
+        print(f"Type : {self.type.name}\nVersion : {self.version}\nId : {self.id}\nData {' ; '.join(self.data)}\n\n")
+
+    def initialize_literal(self):
+        data_string = self.bin_string[6:-1]
+        is_end = False
+        for index in range(int(len(data_string) / 5)):
+            if data_string[index * 5] == '0':
+                is_end = True
+            self.data.append(data_string[index * 5:(index * 5) + 5])
+            if is_end:
+                break
+
+    def initialize_operator(self):
+        self.data_length_type = Packet.LengthType.bit15 if self.bin_string[6] == '0' else Packet.LengthType.bit11
+        if self.data_length_type == Packet.LengthType.bit15:
+            self.data_length = int(self.bin_string[7:22], 2)
+            self.initialize_bit15()
+        else:
+            self.data_length = int(self.bin_string[7:18], 2)
+            self.initialize_bit11()
+
+    def initialize_bit15(self):
+        data_range = self.bin_string[22:22 + self.data_length]
+
+    def initialize_bit11(self):
+        data_range = self.bin_string[18:-1]
 
     @staticmethod
-    def extract_packets(packet):
-        packets_found = []
-
-    @staticmethod
-    def hextobin(h):
+    def hex_to_bin(h):
         return bin(int(h, 16))[2:].zfill(len(h) * 4)
 
     class Type(Enum):
         Literal = 0
         Operator = 1
 
-    class DataLengthType(Enum):
-        bit15 = 0  # Next 15 bits - total length of data (in bits)
-        bit11 = 1  # Next 11 bits - number of data that is available
+    class LengthType(Enum):
+        bit11 = 0
+        bit15 = 1
 
 
 for x in raw_data_string.strip().split("\n"):
-    Packet.packets.append(Packet(x))
+    binary = Packet.hex_to_bin(x)
+    Packet.packets.append(Packet(str(binary)))
+
+    # id = int(binary[3:6], 2)
+    #
+    # if id == 4:
+    #     # Literal
+    #     Packet.packets.append(Packet(str(binary)))
+    # else:
+    #     # Operator
+    #     pass
+
