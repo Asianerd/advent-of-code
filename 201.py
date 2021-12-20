@@ -149,7 +149,6 @@ class Dot:
         Dot.current_field = list(Dot.next_field)
         Dot.next_field = []
 
-        #display_field()
 
     @staticmethod
     def fetch_at(position):
