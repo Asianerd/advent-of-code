@@ -141,7 +141,6 @@ v>>v>v.>...>..>....>.>vvv...>.......>>.v.vv.v...>.>.v...>v...>.>..v..v.v....v.v.
 class Cumbers:
     max_length = [0, 0]
     collections = [[], []]  # [>, v]
-    future_collection = [[], []]
     directional_increments = {
         0: [1, 0],
         1: [0, 1]
@@ -164,13 +163,9 @@ class Cumbers:
 
     @staticmethod
     def static_update():
-        Cumbers.future_collection = [[], []]
-
         for direction, collection in enumerate(Cumbers.collections):
             for item in collection:
                 item.update(direction)
-
-        Cumbers.collections = list(Cumbers.future_collection)
 
     @staticmethod
     def static_init():
