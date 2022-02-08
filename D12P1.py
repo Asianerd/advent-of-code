@@ -1,6 +1,6 @@
 import math
 
-_raw_data_string = """
+raw_data_string = """
 W2
 N4
 R90
@@ -772,7 +772,7 @@ W5
 F5
 """
 
-raw_data_string = """
+_raw_data_string = """
 F10
 N3
 F7
@@ -799,41 +799,12 @@ for x in data:
     command = x[0]
     amount = x[1]
     if command in ['W', 'N', 'E', 'S']:
-        # this is absolutely horrible code, i wish i used my degree method
-        if direction == 'W':
-            final_direction = {
-                'W': 'S',
-                'N': 'W',
-                'E': 'N',
-                'S': 'E'
-            }[x[0]]
-        elif direction == 'N':
-            final_direction = {
-                'W': 'W',
-                'N': 'N',
-                'E': 'E',
-                'S': 'S'
-            }[x[0]]
-        elif direction == 'E':
-            final_direction = {
-                'W': 'N',
-                'N': 'E',
-                'E': 'S',
-                'S': 'W'
-            }[x[0]]
-        else:
-            final_direction = {
-                'W': 'E',
-                'N': 'S',
-                'E': 'W',
-                'S': 'N'
-            }[x[0]]
         increment = {
             'W': [-amount, 0],
             'N': [0, amount],
             'E': [amount, 0],
             'S': [0, -amount]
-        }[final_direction]
+        }[command]
 
         position[0] += increment[0]
         position[1] += increment[1]
@@ -847,41 +818,12 @@ for x in data:
             _i
         ]
     elif command == 'F':
-        if direction == 'W':
-            final_direction = {
-                'W': 'S',
-                'N': 'W',
-                'E': 'N',
-                'S': 'E'
-            }[direction]
-        elif direction == 'N':
-            final_direction = {
-                'W': 'W',
-                'N': 'N',
-                'E': 'E',
-                'S': 'S'
-            }[direction]
-        elif direction == 'E':
-            final_direction = {
-                'W': 'N',
-                'N': 'E',
-                'E': 'S',
-                'S': 'W'
-            }[direction]
-        else:
-            final_direction = {
-                'W': 'E',
-                'N': 'S',
-                'E': 'W',
-                'S': 'N'
-            }[direction]
-
         increment = {
             'W': [-amount, 0],
             'N': [0, amount],
             'E': [amount, 0],
             'S': [0, -amount]
-        }[final_direction]
+        }[direction]
 
         position[0] += increment[0]
         position[1] += increment[1]
