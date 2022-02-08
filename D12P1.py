@@ -773,75 +773,120 @@ F5
 """
 
 raw_data_string = """
-N10
+F10
+N3
+F7
+R90
+F11
 """
 
 data = []
 for x in raw_data_string.strip().split("\n"):
     data.append([x[0], int(x[1:])])
 
-"""
-        90
-        N
-        |
-180 W---+---E 0
-        |
-        S
-       270
-       
-        0
-        E
-        |
-270 S---+---N 90
-        |
-        W
-       180
-       
-"""
-
-direction = 'N'
-direction_angles = {
-    'W': 180,
-    'N': 90,
-    'E': 0,
-    'S': 270
-}
-position = [0, 0]
-
-
-def fetch_increment(_d, distance):
-    _r = math.radians(_d)
-    return [
-        int(math.cos(_r) * distance),
-        int(math.sin(_r) * distance)
-    ]
+directions = ['W', 'N', 'E', 'S']
 
 
 def wrap_angle(_d):
-    amount = _d / 360
-    return int((amount % 1) * 360)
+    _a = _d / 360
+    return int((_a % 1) * 360)
 
+
+direction = 'E'
+position = [0, 0]
 
 for x in data:
-    if x[0] in ['W', 'N', 'E', 'S']:
-        increment = fetch_increment(direction_angles[x[0]], x[1])
+    command = x[0]
+    amount = x[1]
+    if command in ['W', 'N', 'E', 'S']:
+        # this is absolutely horrible code, i wish i used my degree method
+        if direction == 'W':
+            final_direction = {
+                'W': 'S',
+                'N': 'W',
+                'E': 'N',
+                'S': 'E'
+            }[x[0]]
+        elif direction == 'N':
+            final_direction = {
+                'W': 'W',
+                'N': 'N',
+                'E': 'E',
+                'S': 'S'
+            }[x[0]]
+        elif direction == 'E':
+            final_direction = {
+                'W': 'N',
+                'N': 'E',
+                'E': 'S',
+                'S': 'W'
+            }[x[0]]
+        else:
+            final_direction = {
+                'W': 'E',
+                'N': 'S',
+                'E': 'W',
+                'S': 'N'
+            }[x[0]]
+        increment = {
+            'W': [-amount, 0],
+            'N': [0, amount],
+            'E': [amount, 0],
+            'S': [0, -amount]
+        }[final_direction]
+
         position[0] += increment[0]
         position[1] += increment[1]
-    else:
-        if x[0] == 'F':
-            increment = fetch_increment(direction_angles[direction], x[1])
-            position[0] += increment[0]
-            position[1] += increment[1]
+    elif command in ['R', 'L']:
+        _i = int(directions.index(direction) + ((1 if (command == 'R') else -1) * (wrap_angle(x[1])/90)))
+        if _i >= len(directions):
+            _i -= len(directions)
+        elif _i < 0:
+            _i += len(directions)
+        direction = directions[
+            _i
+        ]
+    elif command == 'F':
+        if direction == 'W':
+            final_direction = {
+                'W': 'S',
+                'N': 'W',
+                'E': 'N',
+                'S': 'E'
+            }[direction]
+        elif direction == 'N':
+            final_direction = {
+                'W': 'W',
+                'N': 'N',
+                'E': 'E',
+                'S': 'S'
+            }[direction]
+        elif direction == 'E':
+            final_direction = {
+                'W': 'N',
+                'N': 'E',
+                'E': 'S',
+                'S': 'W'
+            }[direction]
         else:
-            if x[0] == 'R':
-                angle = direction_angles[direction] + x[1]
-            elif x[0] == 'L':
-                angle = direction_angles[direction] - x[1]
-            angle = wrap_angle(angle)
-            direction = [x[0] for x in direction_angles.items() if x[1] == angle][0]
-    print(f"{position} : {direction} {direction_angles[direction]}")
+            final_direction = {
+                'W': 'E',
+                'N': 'S',
+                'E': 'W',
+                'S': 'N'
+            }[direction]
 
-print(position)
+        increment = {
+            'W': [-amount, 0],
+            'N': [0, amount],
+            'E': [amount, 0],
+            'S': [0, -amount]
+        }[final_direction]
 
+        position[0] += increment[0]
+        position[1] += increment[1]
+    print(f"{direction} : {position}")
+
+print(f'Position : {position}')
 manhattan_distance = sum([abs(x) for x in position])
-print(manhattan_distance)
+print(f"Manhattan distance : {manhattan_distance}")
