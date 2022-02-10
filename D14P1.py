@@ -1,4 +1,4 @@
-data = """
+raw_data_string = """
 mask = 00X1011010111X01X1X010X01X1111X11100
 mem[13879] = 56974
 mem[26072] = 842
@@ -557,4 +557,50 @@ mem[8228] = 24889387
 mem[13951] = 25158
 """
 
-print(data.strip().split("mask = "))
+
+class Memory:
+    # highest = 65409
+    # aka 2^16~
+    memory_objects = []
+    memory = {}
+
+    def __init__(self, _b, _i):
+        self.bitmask = _b
+        self.instructions = _i
+        # [address, amount]
+
+    def invoke(self):
+        for x in self.instructions:
+            binary = [x for x in str(bin(x[1]))[2::][::-1]]
+            for index, i in enumerate(self.bitmask[::-1]):
+                if index >= len(binary):
+                    binary.append('0')
+                if i == 'X':
+                    continue
+                binary[index] = i
+            final = int(''.join(binary[::-1]), 2)
+
+            Memory.memory[x[0]] = final
+
+
+batch = ['', []]
+# [bitmask, instructions]
+#   instructions -> [address, value]
+for x in raw_data_string.strip().split("mask = "):
+    if not x:
+        continue
+    batch[0] = x.split("\n")[0]
+    for item in x.split('\n')[1:]:
+        if not item:
+            continue
+        address = int(item.split(' = ')[0][4:-1])
+        value = int(item.split(' = ')[1])
+        batch[1].append([address, value])
+    print(batch)
+    Memory.memory_objects.append(Memory(batch[0], batch[1]))
+    batch = ['', []]
+
+for x in Memory.memory_objects:
+    x.invoke()
+
+print(f'Memory {sum([x[1] for x in Memory.memory.items()])}')
