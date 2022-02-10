@@ -557,11 +557,11 @@ mem[8228] = 24889387
 mem[13951] = 25158
 """
 
-raw_data_string = """
-mask = XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X
-mem[8] = 11
-mem[7] = 101
-mem[8] = 0
+_raw_data_string = """
+mask = 000000000000000000000000000000X1001X
+mem[42] = 100
+mask = 00000000000000000000000000000000X0XX
+mem[26] = 1
 """
 
 class Memory:
@@ -577,27 +577,36 @@ class Memory:
 
     def invoke(self):
         for x in self.instructions:
-            binary = [x for x in str(bin(x[1]))[2::][::-1]]
-            for index, i in enumerate(self.bitmask[::-1]):
-                if index >= len(binary):
-                    binary.append('0')
-                if i == 'X':
-                    continue
-                binary[index] = i
-            final = int(''.join(binary[::-1]), 2)
-
-            addresses = self.calculate_addresses()
+            addresses = self.calculate_addresses(x[0])
 
             for item in addresses:
-                Memory.memory[item] = final
+                Memory.memory[item] = x[1]
 
-    def calculate_addresses(self):
+    def calculate_addresses(self, _a):
+        address_as_list = [x for x in str(bin(_a))[2::][::-1]]
         for index, i in enumerate(self.bitmask[::-1]):
-            if index >= len(binary):
-                binary.append('0')
+            if index >= len(address_as_list):
+                address_as_list.append('0')
             if i == '0':
                 continue
-            binary[index] = i
+            address_as_list[index] = i
+
+        expanded = []
+        amount = len([x for x in address_as_list if x == 'X'])
+
+        for x in range(2 ** amount):
+            bin_string = str(bin(x))[2:].rjust(amount, '0')
+            final = list(address_as_list)
+            incremented_index = 0
+            for index, item in enumerate(address_as_list):
+                if item == 'X':
+                    final[index] = bin_string[incremented_index]
+                    incremented_index += 1
+            expanded.append(int(''.join(final[::-1]), 2))
+
+        print('\t' + '\t'.join([str(x) for x in expanded]))
+
+        return expanded
 
 
 batch = ['', []]
