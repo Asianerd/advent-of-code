@@ -271,6 +271,20 @@ nearby tickets:
 355,845,802,234,472,920,174,62,945,889,715,110,721,900,917,948,866,461,140,787
 """
 
+# raw_data_string = """
+# class: 0-1 or 4-19
+# row: 0-5 or 8-19
+# seat: 0-13 or 16-19
+
+# your ticket:
+# 11,12,13
+
+# nearby tickets:
+# 3,9,18
+# 15,1,5
+# 5,14,9
+# """
+
 
 class Tickets:
     collection = []
@@ -284,6 +298,7 @@ class Tickets:
         for ticket in self.tickets:
             if TicketRanges.in_any_range(ticket):
                 passed.append(ticket)
+        #print(f'{len(self.tickets)} --> {len(passed)}')
         self.tickets = passed
 
     @staticmethod
@@ -300,20 +315,20 @@ class TicketRanges:
         self.name = string.split(": ")[0]
         self.ranges = [range(int(x.split("-")[0]), int(x.split("-")[1]) + 1) for x in string.split(": ")[-1].split(" or ")]
 
-    def all_in_range(self, amount):
+    def all_in_range(self, amount: list): # if all ints in list pass the range
         for item in amount:
             if not self.in_range(item):
                 return False
         return True
 
-    def in_range(self, amount):
+    def in_range(self, amount): # if item passes all the ranges
         for r in self.ranges:
             if amount in r:
                 return True
         return False
 
     @staticmethod
-    def in_any_range(amount):
+    def in_any_range(amount): # if the item is in any of the ranges
         for t in TicketRanges.collection:
             for r in t.ranges:
                 if amount in r:
@@ -334,25 +349,36 @@ for index, x in enumerate('\n'.join(raw_data_string.strip().split("\n\n")[1:]).s
 
 Tickets.filter_all()
 
-fields = []
+fields = ['' for _ in range(20)]
 ordered_tickets = []
-for x in Tickets.collection:
+for index in range(len(TicketRanges.collection)):
     ordered_tickets.append([])
-    for index in range(20):
+    for x in Tickets.collection:
         try:
-            ordered_tickets[index].append(x.tickets[index])
+            ordered_tickets[-1].append(x.tickets[index])
         except:
             pass
-    try:
-        ordered_tickets.remove([])
-    except:
-        pass
 
-for index in range(20):
+# Target : 0, 2, 7, 9, 11, 19
+for index in range(len(TicketRanges.collection)):
     for r in TicketRanges.collection:
         if r.all_in_range(ordered_tickets[index]):
             if not (r.name in fields):
-                fields.append(r.name)
-            break
+                if fields[index] == '':
+                    fields[index] = (r.name)
 
-print(fields)
+
+final_numbers = []
+
+for index, x in enumerate(fields):
+    print(f'{">" if ("departure" in x) else " "} {index}. {x}')
+    if 'departure' in x:
+        final_numbers.append(Tickets.own_ticket.tickets[index])
+
+final = 1
+
+for x in final_numbers:
+    print(f'{final}. {x}')
+    final *= x
+
+print(f'Final score :\t{final}')
