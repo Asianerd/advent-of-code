@@ -273,7 +273,6 @@ nearby tickets:
 
 
 class Tickets:
-    invalid_total = 0
     collection = []
     own_ticket = None
 
@@ -285,9 +284,6 @@ class Tickets:
         for ticket in self.tickets:
             if TicketRanges.in_any_range(ticket):
                 passed.append(ticket)
-        for ticket in self.tickets:
-            if not (ticket in passed):
-                Tickets.invalid_total += ticket
         self.tickets = passed
 
     @staticmethod
@@ -303,6 +299,18 @@ class TicketRanges:
     def __init__(self, string: str):
         self.name = string.split(": ")[0]
         self.ranges = [range(int(x.split("-")[0]), int(x.split("-")[1]) + 1) for x in string.split(": ")[-1].split(" or ")]
+
+    def all_in_range(self, amount):
+        for item in amount:
+            if not self.in_range(item):
+                return False
+        return True
+
+    def in_range(self, amount):
+        for r in self.ranges:
+            if amount in r:
+                return True
+        return False
 
     @staticmethod
     def in_any_range(amount):
@@ -325,4 +333,26 @@ for index, x in enumerate('\n'.join(raw_data_string.strip().split("\n\n")[1:]).s
         Tickets.collection.append(Tickets(x))
 
 Tickets.filter_all()
-print(Tickets.invalid_total)
+
+fields = []
+ordered_tickets = []
+for x in Tickets.collection:
+    ordered_tickets.append([])
+    for index in range(20):
+        try:
+            ordered_tickets[index].append(x.tickets[index])
+        except:
+            pass
+    try:
+        ordered_tickets.remove([])
+    except:
+        pass
+
+for index in range(20):
+    for r in TicketRanges.collection:
+        if r.all_in_range(ordered_tickets[index]):
+            if not (r.name in fields):
+                fields.append(r.name)
+            break
+
+print(fields)
