@@ -69,7 +69,6 @@ def get_now():
 
 start_time = time.time()
 
-
 lineA = Line(raw_data_string.strip().split("\n")[0])
 lineB = Line(raw_data_string.strip().split("\n")[1])
 print("init done")
@@ -83,7 +82,6 @@ for y in range(Line.ranges[1][0], Line.ranges[1][1] + 1):
 print("grid assign done")
 get_now()
 
-
 # counts = []
 # count = 0
 intersections = []
@@ -94,7 +92,7 @@ for list_index in range(2):
             raw_point[1] - Line.ranges[1][0]
         ]
         current = grid[point[1]][point[0]]
-        #count += 1
+        # count += 1
         if current == 0:
             grid[point[1]][point[0]] = list_index + 1
             continue
@@ -103,16 +101,14 @@ for list_index in range(2):
                 continue
             grid[point[1]][point[0]] = 3
             intersections.append(list(point))
-            #counts.append(int(count - 1))
+            # counts.append(int(count - 1))
 
 print("intersection assign")
 get_now()
 
-
-
 center = [
-    central_port[0]-Line.ranges[0][0],
-    central_port[1]-Line.ranges[1][0]
+    central_port[0] - Line.ranges[0][0],
+    central_port[1] - Line.ranges[1][0]
 ]
 # for y, row in enumerate(grid):
 #     for x, i in enumerate(row):
@@ -143,6 +139,5 @@ print("count assign done")
 get_now()
 
 list_count = list(counts.items())
-list_count.sort(key=lambda x:x[1])
+list_count.sort(key=lambda x: x[1])
 print(list_count[0])
-
