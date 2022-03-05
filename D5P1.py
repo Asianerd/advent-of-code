@@ -26,6 +26,8 @@ def get_parameter(parent, index, parameter):
 execution_index = 0
 run = True
 input_number = 1
+monitored_value = 125
+monitor_value = True
 
 while run:
     current = instructions[execution_index]
@@ -40,8 +42,9 @@ while run:
         a = get_parameter(current, 0, instructions[execution_index + 1])
         b = get_parameter(current, 1, instructions[execution_index + 2])
         target = instructions[execution_index + 3]
-        if target == 224:
-            print(f"+@{execution_index}\t{instructions[224]}\t{a}\t{b}\t{target}")
+        if monitor_value:
+            if target == monitored_value:
+                print(f"+@{execution_index}\t{instructions[monitored_value]}\t{a}\t{b}\t{target}")
         #print(a, b, target)
         # if execution_index == 106:
         #     print(a,b,target)
@@ -52,14 +55,15 @@ while run:
         a = get_parameter(current, 0, instructions[execution_index + 1])
         b = get_parameter(current, 1, instructions[execution_index + 2])
         target = instructions[execution_index + 3]
-        if target == 224:
-            print(f"*@{execution_index}\t{instructions[224]}\t{a}\t{b}\t{target}")
+        if monitor_value:
+            if target == monitored_value:
+                print(f"*@{execution_index}\t{instructions[monitored_value]}\t{a}\t{b}\t{target}")
         instructions[target] = a * b
         execution_index += 3
 
     if command == 3:  # write {input} at {parameter}
-        p = get_parameter(current, 0, instructions[execution_index + 1])
-        #p = instructions[execution_index + 1]
+        #p = get_parameter(current, 0, instructions[execution_index + 1])
+        p = instructions[execution_index + 1]
         # change this to positional parameter only if it program doesnt work
         instructions[p] = input_number
         execution_index += 1
@@ -68,8 +72,8 @@ while run:
         out = instructions[instructions[execution_index + 1]]
         target = instructions[execution_index + 1]
         print(f'\tOut : {out}(t:{target})')
-        if out != 0:
-            print(f'############# Output isnt 0; execution_index at {execution_index}')
+        # if out != 0:
+        #     print(f'############# Output isnt 0; execution_index at {execution_index}')
         execution_index += 1
 
     execution_index += 1
@@ -78,3 +82,4 @@ while run:
 print(instructions)
 # 84084  too low
 # 359667609   too high
+# 15259545 correct
