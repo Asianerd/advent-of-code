@@ -1,1 +1,1 @@
-print(5 > 11)
+print('abcdef'[::-1])
