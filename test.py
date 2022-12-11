@@ -1,1 +1,1 @@
-print('abcdef'[::-1])
+print((8 % 3) == 0)
