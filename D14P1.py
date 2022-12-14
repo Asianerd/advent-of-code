@@ -1,3 +1,10 @@
+from __future__ import annotations
+
+import sys
+from typing import NamedTuple
+from more_itertools import pairwise
+
+raw_data_string = """
 495,144 -> 499,144
 492,40 -> 492,43 -> 484,43 -> 484,50 -> 499,50 -> 499,43 -> 496,43 -> 496,40
 499,13 -> 499,17 -> 497,17 -> 497,25 -> 505,25 -> 505,17 -> 502,17 -> 502,13
@@ -122,3 +129,104 @@
 507,181 -> 507,171 -> 507,181 -> 509,181 -> 509,173 -> 509,181 -> 511,181 -> 511,176 -> 511,181 -> 513,181 -> 513,176 -> 513,181
 499,13 -> 499,17 -> 497,17 -> 497,25 -> 505,25 -> 505,17 -> 502,17 -> 502,13
 500,158 -> 500,159 -> 513,159
+"""
+
+
+class Coord(NamedTuple):
+    x: int
+    y: int
+
+    def __add__(self: Coord, other: Coord) -> Coord:
+        return Coord(self.x + other.x, self.y + other.y)
+
+    def __sub__(self: Coord, other: Coord) -> Coord:
+        return Coord(self.x - other.x, self.y - other.y)
+
+    def __floordiv__(self: Coord, scalar: int) -> Coord:
+        return Coord(self.x // scalar, self.y // scalar)
+
+    @property
+    def manhattan_norm(self) -> int:
+        return abs(self.x) + abs(self.y)
+
+
+def drop_sand(rock, source, floor, part):
+    sand = set()
+    while True:
+        visualise(rock, sand)
+        grain = fall(source, rock, sand, floor)
+        if part == 1 and grain.y + 1 == floor:
+            break
+        sand.add(grain)
+        if part == 2 and grain == source:
+            break
+    return sand
+
+
+def fall(grain: Coord, rock: set[Coord], sand: set[Coord], floor: int) -> Coord:
+    while True:
+        deltas = (
+            Coord(0, +1),
+            Coord(-1, +1),
+            Coord(+1, +1),
+        )
+        for delta in deltas:
+            new_position = grain + delta
+            if (
+                new_position not in sand
+                and new_position not in rock
+                and new_position.y < floor
+            ):
+                grain = new_position
+                break
+        else:
+            return grain
+
+
+def main() -> int:
+    lines = raw_data_string.strip().splitlines()
+
+    rock = set()
+    for line in lines:
+        nodes = line.split("->")
+        nodes = [Coord(*map(int, node.split(","))) for node in nodes]
+        for a, b in pairwise(nodes):
+            direction = (b - a) // (b - a).manhattan_norm
+            position = a
+            while position != b:
+                rock.add(position)
+                position += direction
+            rock.add(b)
+
+    source = Coord(500, 0)
+    floor = 2 + max(coord.y for coord in rock)
+
+    # Part 1
+    sand = drop_sand(rock, source, floor, 1)
+    print(len(sand))
+
+    # Part 2
+    sand = drop_sand(rock, source, floor, 2)
+    print(len(sand))
+
+    return 0
+
+
+def visualise(rock: set[Coord], sand: set[Coord]) -> None:
+    return
+    both = rock | sand
+    minx = min(c.x for c in both)
+    maxx = max(c.x for c in both)
+    miny = min(c.y for c in both)
+    maxy = max(c.y for c in both)
+    for y in range(miny, maxy + 1):
+        for x in range(minx, maxx + 1):
+            coord = Coord(x, y)
+            char = "#" if coord in rock else "o" if coord in sand else "."
+            print(char, end="")
+        print()
+    print()
+
+
+if __name__ == "__main__":
+    sys.exit(main())
