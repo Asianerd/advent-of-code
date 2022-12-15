@@ -1,31 +1,61 @@
-import networkx as nx
+import re
 
-def parser(filename: str):
-    with open(filename, 'r') as file:
-        loc_dict = {complex(x, y): v for x, row in enumerate(file.read().splitlines()) for y, v in enumerate(row)}
-        start, end = next(i for i, v in loc_dict.items() if v == 'S'), next(i for i, v in loc_dict.items() if v == 'E')
-        loc_dict[start] = 'a'
-        loc_dict[end] = 'z'
-        return loc_dict, start, end
+inpt = []
+
+with open('input.txt') as f:
+    for line in f.readlines():
+        inpt += [[*map(int, re.findall(r'-?\d+', line))]]
+
+print(inpt)
+pos = set()
+y = 2000000
+
+for row in inpt:
+
+    sx, sy, bx, by = row
+
+    dist = abs(sx - bx) + abs(sy - by)
+    width = dist - abs(y - sy)
+
+    if width < 0:
+        continue
+
+    for x in range(sx - width, sx + width + 1):
+        pos.add(x)
+
+for row in inpt:
+    if row[3] == y:
+        if row[2] in pos:
+            pos.remove(row[2])
+
+print(len(pos))
 
 
-def part_a_solver(loc_dict: dict[complex, str], start: complex, end: complex):
-    def get_neighbours(z: complex):
-        return (z + d for d in (1, 1j, -1, -1j) if z + d in loc_dict and ord(loc_dict[z + d]) <= ord(loc_dict[z]) + 1)
-    graph = nx.DiGraph([(pt, npt, {'weight': 1}) for pt in loc_dict for npt in get_neighbours(pt)])
-    return nx.dijkstra_path_length(graph, start, end, weight='weight')
+def get_ranges(y):
+    a = []
 
+    for row in inpt:
+        sx, sy, bx, by = row
 
-def part_b_solver(loc_dict: dict[complex, str], start: complex, end: complex):
-    a_loc = tuple(i for i, v in loc_dict.items() if v == 'a')
-    def get_neighbours(z: complex):
-        return tuple(z + d for d in (1, 1j, -1, -1j) if z + d in loc_dict and ord(loc_dict[z + d]) >= ord(loc_dict[z]) - 1) + \
-            (a_loc if loc_dict[z] == 'a' else tuple())
+        dist = abs(sx - bx) + abs(sy - by)
+        width = dist - abs(y - sy)
 
-    graph = nx.DiGraph([(pt, npt, {'weight': 1}) for pt in loc_dict for npt in get_neighbours(pt)])
-    return nx.dijkstra_path_length(graph, end, start, weight='weight') - 1
+        if width < 0:
+            continue
+        
+        a += [(sx - width, sx + width)]
+    
+    b = []
+    for begin,end in sorted(a):
+        if b and b[-1][1] >= begin - 1:
+            b[-1][1] = max(b[-1][1], end)
+        else:
+            b.append([begin, end])
+    
+    return b
 
-loc, start, end = parser('input.txt')
-print(part_a_solver(loc, start, end))
-print(part_b_solver(loc, start, end))
-
+for i in range(4000000):
+    x = get_ranges(i)
+    if len(x) > 1:
+        print(i + (x[0][1] + 1) * 4000000)
+        break
