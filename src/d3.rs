@@ -40,8 +40,61 @@ pub fn p2(input_data: String) {
         lines.push(l);
     }
 
+    let range = lines[0].len() - 1;
+    let mut o2_lines: Vec<Vec<i32>> = lines.clone();
+    for i in 0..=range {
+        if o2_lines.len() == 1 {
+            break;
+        }
+
+        let most_common: Vec<i32> = fetch_most_common(o2_lines.clone()).to_owned();
+
+        let mut final_lines: Vec<Vec<i32>> = vec![];
+        for line in &o2_lines {
+            if line[i] == most_common[i] {
+                final_lines.push(line.clone());
+            }
+        }
+        o2_lines = final_lines.clone();
+    }
+
+    let mut co2_lines: Vec<Vec<i32>> = lines.clone();
+    for i in 0..=range {
+        if co2_lines.len() == 1 {
+            break;
+        }
+
+        let least_common: Vec<i32> = fetch_least_common(co2_lines.clone()).to_owned();
+
+        let mut final_lines: Vec<Vec<i32>> = vec![];
+        for line in &co2_lines {
+            if line[i] == least_common[i] {
+                final_lines.push(line.clone());
+            }
+        }
+        co2_lines = final_lines.clone();
+    }
+
+
+    let mut oxygen_generator_rating = "".to_string();
+    for x in &o2_lines[0] {
+        oxygen_generator_rating += x.to_string().as_str();
+    }
+
+    let mut co2_scrubber_rating = "".to_string();
+    for x in &co2_lines[0] {
+        co2_scrubber_rating += x.to_string().as_str();
+    }
+
+
+    println!("Oxygen generator rating : {}", i32::from_str_radix(oxygen_generator_rating.as_str(), 2).ok().unwrap());
+    println!("Co2 scrubber rating : {}", i32::from_str_radix(co2_scrubber_rating.as_str(), 2).ok().unwrap());
+    println!("Life support rating : {}", i32::from_str_radix(co2_scrubber_rating.as_str(), 2).ok().unwrap() * i32::from_str_radix(oxygen_generator_rating.as_str(), 2).ok().unwrap());
+}
+
+fn fetch_most_common(lines: Vec<Vec<i32>>) -> Vec<i32> {
     let mut most_common: Vec<i32> = vec![];
-    let range = lines[0].len();
+    let range = lines[0].len() - 1;
     for i in 0..=range {
         let mut x = 0;
         for l in &lines {
@@ -51,6 +104,26 @@ pub fn p2(input_data: String) {
                 _ => 0
             };
         }
-        most_common.push((if x > 0 { 1 } else { 0 }));
+        most_common.push(if x >= 0 { 1 } else { 0 });
     }
+
+    return most_common;
+}
+
+fn fetch_least_common(lines: Vec<Vec<i32>>) -> Vec<i32> {
+    let mut least_common: Vec<i32> = vec![];
+    let range = lines[0].len() - 1;
+    for i in 0..=range {
+        let mut x = 0;
+        for l in &lines {
+            x += match l[i] {
+                0 => -1,
+                1 => 1,
+                _ => 0
+            };
+        }
+        least_common.push(if x < 0 { 1 } else { 0 });
+    }
+
+    return least_common;
 }
