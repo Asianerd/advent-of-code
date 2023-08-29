@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 pub fn _p1(input: String) {
     let mut fishes: Vec<i32> = vec![];
 
