@@ -1,6 +1,6 @@
 mod challenge_input;
-mod d6;
+mod d3;
 
 fn main() {
-    d6::p2(challenge_input::input(6));
+    d3::p2(challenge_input::input(3));
 }
