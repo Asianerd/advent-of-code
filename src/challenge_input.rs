@@ -2100,7 +2100,6 @@ mtgky xmwf zdko nnocxye gytkm ygp hixk xwmf
 maudjy okgjga uadjmy dzfrk omd
 azz ajdcqkd bcafn zaz dcjaqdk gylyzo
 xzvfbf fopmfxu mvftgr mfupoxf coyhof talcc vpkslo",
-"4	10	4	1	8	4	9	14	5	1	14	15	0	15	3	5",
 "cfkcj (74)
 kmwhbm (32)
 uuvdgc (58)
