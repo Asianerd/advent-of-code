@@ -56,7 +56,6 @@ pub fn p1(data: String) {
         if x == '{' {
             depth += 1;
         }
-
         if x == '}' {
             sum += depth;
             depth -= 1;
